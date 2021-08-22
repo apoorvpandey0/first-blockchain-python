@@ -69,6 +69,15 @@ def full_chain():
     }
     return jsonify(response), 200
 
+@app.route('/nodes/list', methods=['GET'])
+def getall_nodes():
+    response = {
+        'message': 'All nodes',
+        'length': len(blockchain.nodes),
+        'total_nodes': list(blockchain.nodes),
+    }
+    return jsonify(response), 201
+
 @app.route('/nodes/register', methods=['POST'])
 def register_nodes():
     values = request.get_json()
