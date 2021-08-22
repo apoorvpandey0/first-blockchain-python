@@ -3,6 +3,7 @@ import json
 from textwrap import dedent
 from time import time
 from uuid import uuid4
+import sys
 
 from flask import Flask, jsonify, request
 from blockchain import Blockchain
@@ -68,9 +69,6 @@ def full_chain():
     }
     return jsonify(response), 200
 
-if __name__ == '__main__':
-    app.run(debug=True,host='0.0.0.0', port=5000)
-
 @app.route('/nodes/register', methods=['POST'])
 def register_nodes():
     values = request.get_json()
@@ -105,3 +103,28 @@ def consensus():
         }
 
     return jsonify(response), 200
+
+@app.route('/nodes/remove', methods=['POST'])
+def remove_nodes():
+    values = request.get_json()
+
+    nodes = values.get('nodes')
+    if nodes is None:
+        return "Error: Please supply a valid list of nodes to remove", 400
+    
+    if set(nodes) != blockchain.nodes:
+        return {
+            'message': 'No nodes to remove',
+            'removed': []
+        }
+    else:
+        blockchain.nodes = blockchain.nodes - set(nodes)
+        print(blockchain.nodes)
+        return {
+            'message': 'Nodes removed',
+            'removed': nodes
+        }
+
+if __name__ == '__main__':
+    PORT = int(sys.argv[1]) if (len(sys.argv) > 1) else 5000
+    app.run(debug=True,host='0.0.0.0', port=PORT)
